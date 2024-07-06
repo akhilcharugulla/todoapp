@@ -32,10 +32,6 @@ public class TodoServiceImpl implements TodoService {
 
 	@Override
 	public Todo updateTodo(Long id, Todo updatedTodo) {
-//		Todo todo = getTodoById(id);
-//		todo.setName(updatedTodo.getName());
-//		todo.setDescription(updatedTodo.getDescription());
-//		todo.setCompleted(updatedTodo.isCompleted());
 		return todorepository.save(updatedTodo);
 	}
 
@@ -44,4 +40,14 @@ public class TodoServiceImpl implements TodoService {
 		System.out.println(id);
 		todorepository.deleteById(id);
 	}
+
+	@Override
+	public List<Todo> getTodoWithSearchText(String searchTerm) {
+		return todorepository.getTodoWithSearchText(searchTerm);
+	}
+
+//	@Override
+//	public List<Todo> getTodoWithSearchText(String searchTerm) {
+//		return todorepository.findByNameContaining(searchTerm);
+//	}
 }

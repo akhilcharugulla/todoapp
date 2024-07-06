@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class TodoappserviceService {
 
+
   constructor(private http: HttpClient) { }
   private baseUri = "http://localhost:8090/v1/todosapp"
 
@@ -22,6 +23,10 @@ export class TodoappserviceService {
 
   getAllTodos(): Observable<Todo[]>{
     return this.http.get<Todo[]>(this.baseUri + "/todos")
+  }
+
+  getTodosBySearchText(searchValue: string): Observable<Todo[]> {
+    return this.http.get<Todo[]>(`${this.baseUri}/todos/search`,{params:{searchTerm:searchValue}})
   }
 
   updateTodo(updatedTodo:Todo, id: any):Observable<Todo>{

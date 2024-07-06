@@ -13,4 +13,6 @@ public interface TodoService {
 	Todo updateTodo(Long id, Todo updatedTodo);
 
 	void deleteTodo(Long id);
+
+	List<Todo> getTodoWithSearchText(String searchTerm);
 }

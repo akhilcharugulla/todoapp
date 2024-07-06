@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarModule, MatSnack
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { Todo } from './Todo';
 import { CommonModule } from '@angular/common';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -31,8 +32,7 @@ export class AppComponent implements OnInit{
   todoFormGroup!: FormGroup;
   todo! : Todo;
   isEditMode: boolean = false;
-  searchText: string = "";
-  //searchTextControl: FormControl;
+  searchText = new FormControl('');
 
   constructor(private _snackBar:MatSnackBar, private todoappserviceService: TodoappserviceService){}
 
@@ -45,7 +45,11 @@ export class AppComponent implements OnInit{
       })
       this.getAlltodos();
 
-      //this.searchText = this.todoFormGroup.get('searchText') as FormControl;
+      this.searchText.valueChanges.subscribe(searchTerm => {
+      this.todoappserviceService.getTodosBySearchText(searchTerm!).subscribe((todos : Todo[])=>{
+        this.allTodos = todos
+      }); 
+    });
 
     }
 

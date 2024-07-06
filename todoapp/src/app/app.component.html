@@ -41,7 +41,7 @@
            
     <mat-form-field class="search-bar">
       <mat-label>Search Tasks</mat-label>
-      <input formControlName="searchText" name="searchText" [(ngModel)]="searchText" matInput placeholder="Search by todo name" />
+      <input [formControl]="searchText" name="searchText" matInput placeholder="Search by todo name" />
     </mat-form-field>
     
     <table class="table mt-1">
