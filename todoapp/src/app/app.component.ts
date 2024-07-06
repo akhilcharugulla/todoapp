@@ -8,22 +8,24 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarModule, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { Todo } from './Todo';
 import { CommonModule } from '@angular/common';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import {Sort, MatSortModule} from '@angular/material/sort';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet,MatCardModule,MatFormFieldModule,MatInputModule,MatIconModule,MatSnackBarModule,MatCheckboxModule,MatButtonModule
-    ,ReactiveFormsModule, CommonModule,
+    ,ReactiveFormsModule, CommonModule,MatPaginatorModule,MatSortModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 
 export class AppComponent implements OnInit{
+
 
   allTodos : Todo[] = []
   title = 'todo-fullstack';
@@ -33,6 +35,9 @@ export class AppComponent implements OnInit{
   todo! : Todo;
   isEditMode: boolean = false;
   searchText = new FormControl('');
+  todoPageSize: number = 5;
+  totalTodos : number = 0;
+  offset: number = 0;
 
   constructor(private _snackBar:MatSnackBar, private todoappserviceService: TodoappserviceService){}
 
@@ -43,14 +48,50 @@ export class AppComponent implements OnInit{
         description: new FormControl(null),
         completed: new FormControl(false) 
       })
-      this.getAlltodos();
-
+      //this.getAlltodos();
+      this.getTodosByPageSize();
       this.searchText.valueChanges.subscribe(searchTerm => {
       this.todoappserviceService.getTodosBySearchText(searchTerm!).subscribe((todos : Todo[])=>{
         this.allTodos = todos
       }); 
     });
 
+    }
+
+    onPageChange(event: PageEvent) {
+      if (this.todoPageSize !== event.pageSize) {
+        this.todoPageSize = event.pageSize;
+        this.offset = 0;
+      } 
+
+      else{
+        if (event.previousPageIndex !== undefined && event.pageIndex !== undefined) {
+          if (event.previousPageIndex < event.pageIndex) {
+            this.offset = ++this.offset;
+          } else {
+            this.offset = --this.offset;
+          }
+        }
+      }
+
+      this.getTodosByPageSize();
+    }
+
+    getTodosByPageSize() {
+      this.todoappserviceService.getAllTodosByPagination(this.offset,this.todoPageSize).subscribe((data)=>{
+        this.totalTodos = data.totalElements;
+        this.allTodos = data.todos;
+      });
+    }
+
+    sortData(sort: Sort) {
+      if (sort.direction === '') {
+        sort.direction = 'asc'; 
+      }
+      this.todoappserviceService.getTodosWithPaginationAndSorting(this.offset,this.todoPageSize,sort.active,sort.direction).subscribe((data)=>{
+        this.totalTodos = data.totalElements;
+        this.allTodos = data.todos;
+      })
     }
 
     onSubmit() {
@@ -66,7 +107,8 @@ export class AppComponent implements OnInit{
       this.todo = this.todoFormGroup.value
       this.todoappserviceService.createTodo(this.todo).subscribe((newTodo) => {
         this.openSnackBar(this.todo.name);
-        this.getAlltodos();
+        //this.getAlltodos();
+        this.getTodosByPageSize();
         this.resetForm();
       });
     }
@@ -75,7 +117,8 @@ export class AppComponent implements OnInit{
       this.todo = this.todoFormGroup.value
       this.todoappserviceService.updateTodo(this.todo, this.todo.id).subscribe(() => {
         this.openSnackBar(`Updated: ${this.todo.name}`);
-        this.getAlltodos();
+        this.getTodosByPageSize();
+        //this.getAlltodos();
         this.resetForm();
       });
     }
@@ -108,7 +151,8 @@ export class AppComponent implements OnInit{
   deleteTodo(id: any) {
     this.todoappserviceService.deleteTodo(id).subscribe(()=>{
       console.log("deleted succesfully")
-      this.getAlltodos()
+      //this.getAlltodos()
+      this.getTodosByPageSize();
     })
   }
 

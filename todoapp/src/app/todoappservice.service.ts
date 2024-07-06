@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { Todo } from './Todo';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { TodoResponse } from './TodoResponse';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TodoappserviceService {
 
+  offset = 0
 
   constructor(private http: HttpClient) { }
   private baseUri = "http://localhost:8090/v1/todosapp"
@@ -23,6 +25,14 @@ export class TodoappserviceService {
 
   getAllTodos(): Observable<Todo[]>{
     return this.http.get<Todo[]>(this.baseUri + "/todos")
+  }
+
+  getAllTodosByPagination(offset: number,pagesize: number): Observable<TodoResponse>{
+    return this.http.get<TodoResponse>(`${this.baseUri}/todos/${offset}/${pagesize}`)
+  }
+
+  getTodosWithPaginationAndSorting(offset: number, pagesize: number, fieldName:string, sortDir: string) {
+    return this.http.get<TodoResponse>(`${this.baseUri}/todos/${offset}/${pagesize}/${fieldName}/${sortDir}`)
   }
 
   getTodosBySearchText(searchValue: string): Observable<Todo[]> {

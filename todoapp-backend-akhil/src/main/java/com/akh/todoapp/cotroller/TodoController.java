@@ -1,5 +1,7 @@
 package com.akh.todoapp.cotroller;
+import com.akh.todoapp.dto.TodoPageResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import com.akh.todoapp.entity.Todo;
 import com.akh.todoapp.service.TodoService;
@@ -31,6 +33,18 @@ public class TodoController {
 	@GetMapping("/todos/search")
 	public List<Todo> getTodoWithSearchText(@RequestParam String searchTerm){
 		return todoService.getTodoWithSearchText(searchTerm);
+	}
+
+	@GetMapping("/todos/{offset}/{pagesize}")
+	public TodoPageResponseVo getTodosWithPagination(@PathVariable("offset") int offset, @PathVariable("pagesize") int pagesize){
+		Page<Todo> todoPages = todoService.getTodosWithPagination(offset, pagesize);
+		return new TodoPageResponseVo(todoPages.getTotalElements(), offset, pagesize,todoPages.getContent());
+	}
+
+	@GetMapping("/todos/{offset}/{pagesize}/{fieldName}/{sortDir}")
+	public TodoPageResponseVo getTodosWithPaginationAndSorting(@PathVariable("offset") int offset, @PathVariable("pagesize") int pagesize, @PathVariable String fieldName, @PathVariable String sortDir){
+		Page<Todo> todoPages = todoService.getTodosWithPaginationAndSorting(offset, pagesize, fieldName,sortDir);
+		return new TodoPageResponseVo(todoPages.getTotalElements(), offset, pagesize,todoPages.getContent());
 	}
 
 	@PutMapping("/todos/todo/{id}")

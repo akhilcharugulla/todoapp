@@ -1,4 +1,7 @@
 package com.akh.todoapp.service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.akh.todoapp.entity.Todo;
 import com.akh.todoapp.repository.TodoRepository;
@@ -44,6 +47,24 @@ public class TodoServiceImpl implements TodoService {
 	@Override
 	public List<Todo> getTodoWithSearchText(String searchTerm) {
 		return todorepository.getTodoWithSearchText(searchTerm);
+	}
+
+	@Override
+	public Page<Todo> getTodosWithPagination(int offset, int pagesize) {
+		 return todorepository.findAll(PageRequest.of(offset,pagesize));
+	}
+
+	@Override
+	public Page<Todo> getTodosWithPaginationAndSorting(int offset, int pagesize, String fieldName, String sortDir) {
+		boolean sortASC = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name());
+		Sort sort;
+		if(sortASC){
+			sort = Sort.by(fieldName).ascending();
+		}
+		else{
+			 sort = Sort.by(fieldName).descending();
+		}
+		return todorepository.findAll(PageRequest.of(offset,pagesize,sort));
 	}
 
 //	@Override

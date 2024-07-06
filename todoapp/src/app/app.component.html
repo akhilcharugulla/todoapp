@@ -38,17 +38,25 @@
         </table>
       </form>
     </mat-card>
-           
-    <mat-form-field class="search-bar">
-      <mat-label>Search Tasks</mat-label>
-      <input [formControl]="searchText" name="searchText" matInput placeholder="Search by todo name" />
-    </mat-form-field>
+
+
+    <div class="search-and-pagination-container">
+      <mat-form-field class="search-bar">
+        <mat-label>Search Tasks</mat-label>
+        <input [formControl]="searchText" name="searchText" matInput placeholder="Search by todo name" />
+      </mat-form-field>
+      
+      <nav class="paginator-container">
+        <mat-paginator [length]="totalTodos" [pageSize]="todoPageSize" [pageSizeOptions]="[5, 10, 25, 100]" (page)="onPageChange($event)">
+        </mat-paginator>
+      </nav>
+    </div>
     
-    <table class="table mt-1">
+    <table class="table mt-1" matSort (matSortChange)="sortData($event)">
       <thead>
         <tr>
-          <th scope="col">Status</th>
-          <th scope="col">Task Name</th>
+          <th mat-sort-header="completed" scope="col">Status</th>
+          <th mat-sort-header="name" scope="col">Task Name</th>
           <th scope="col">Task Description</th>
           <th scope="col">Actions</th>
         </tr>
@@ -72,20 +80,6 @@
       </tbody>
     </table>
     
-        
-
-
-    <nav class="mt-5">
-      <ul class="pagination">
-        <ng-container>
-          <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#">1</a>
-          </li>
-          <li class="page-item"><a class="page-link" href="#">Next</a></li>
-        </ng-container>
-      </ul>
-    </nav>
 </div>
   
 <router-outlet />
